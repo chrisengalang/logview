@@ -1,0 +1,108 @@
+/* ─── Reset & Base ──────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Dark theme palette */
+  --bg-primary: #1a1b26;
+  --bg-secondary: #1e1f2e;
+  --bg-tertiary: #24253a;
+  --bg-hover: #2a2b3d;
+  --bg-selected: #33354a;
+
+  --text-primary: #c0caf5;
+  --text-secondary: #a9b1d6;
+  --text-muted: #565f89;
+  --text-accent: #7aa2f7;
+
+  --border-color: #2a2b3d;
+  --border-focus: #7aa2f7;
+
+  /* Log level colors */
+  --level-trace: #565f89;
+  --level-debug: #9aa5ce;
+  --level-info: #7dcfff;
+  --level-warn: #e0af68;
+  --level-error: #f7768e;
+  --level-fatal: #ff007c;
+
+  --level-trace-bg: rgba(86, 95, 137, 0.1);
+  --level-debug-bg: rgba(154, 165, 206, 0.08);
+  --level-info-bg: rgba(125, 207, 255, 0.08);
+  --level-warn-bg: rgba(224, 175, 104, 0.1);
+  --level-error-bg: rgba(247, 118, 142, 0.12);
+  --level-fatal-bg: rgba(255, 0, 124, 0.15);
+
+  --highlight-bg: #e0af6855;
+  --highlight-text: #1a1b26;
+
+  --scrollbar-thumb: #3b3d57;
+  --scrollbar-track: #1a1b26;
+
+  --radius: 6px;
+  --radius-sm: 4px;
+
+  font-family: "Segoe UI", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+}
+
+body {
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4b4d6a;
+}
+
+/* ─── Inputs ────────────────────────────────────────────────────────────── */
+
+input[type="text"],
+input[type="datetime-local"] {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="datetime-local"]:focus {
+  border-color: var(--border-focus);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+}
