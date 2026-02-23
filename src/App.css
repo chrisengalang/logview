@@ -586,26 +586,7 @@
   justify-content: space-between;
 }
 
-.wrap-toggle-btn {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 500;
-  transition: all 0.15s;
-  flex-shrink: 0;
-}
 
-.wrap-toggle-btn:hover {
-  background: var(--bg-hover);
-}
-
-.wrap-toggle-btn.active {
-  background: rgba(122, 162, 247, 0.12);
-  border-color: var(--text-accent);
-  color: var(--text-accent);
-}
 
 .tail-indicator {
   color: #9ece6a;
@@ -634,19 +615,7 @@
   transition: background 0.1s;
 }
 
-/* Scroll mode: lines are fixed height, container scrolls horizontally */
-.scroll-mode .log-viewer-container {
-  overflow: hidden;
-}
 
-.scroll-mode .log-line {
-  white-space: nowrap;
-}
-
-.scroll-mode .auto-sized-list > div {
-  overflow-x: auto !important;
-  overflow-y: auto !important;
-}
 
 /* Wrap mode: lines grow in height, text wraps */
 .log-viewer-wrap {

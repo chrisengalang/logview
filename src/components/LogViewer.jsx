@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect, useCallback } from "react";
-import { FixedSizeList, VariableSizeList } from "react-window";
+import { VariableSizeList } from "react-window";
 
 // Approximate char width for monospace font at 12.5px
 const CHAR_WIDTH = 7.7;
@@ -163,7 +163,6 @@ export default function LogViewer({ lines, filters, tailEnabled, fileMarkers = [
   const listRef = useRef(null);
   const outerRef = useRef(null);
   const shouldAutoScroll = useRef(tailEnabled);
-  const [wrapMode, setWrapMode] = React.useState(false);
   const containerWidthRef = useRef(800);
 
   const searchRegex = useMemo(
@@ -234,17 +233,16 @@ export default function LogViewer({ lines, filters, tailEnabled, fileMarkers = [
     }
   }, [processedLines.length]);
 
-  // Reset VariableSizeList cache when switching modes or when data changes
+  // Reset VariableSizeList cache when data changes
   useEffect(() => {
-    if (wrapMode && listRef.current && listRef.current.resetAfterIndex) {
+    if (listRef.current && listRef.current.resetAfterIndex) {
       listRef.current.resetAfterIndex(0, true);
     }
-  }, [wrapMode, processedLines]);
+  }, [processedLines]);
 
   // Estimate row height for wrap mode based on text length and container width
   const getItemSize = useCallback(
     (index) => {
-      if (!wrapMode) return MIN_ROW_HEIGHT;
       const line = processedLines[index];
       if (!line) return MIN_ROW_HEIGHT;
       const availableWidth = containerWidthRef.current - LINE_OVERHEAD;
@@ -256,38 +254,10 @@ export default function LogViewer({ lines, filters, tailEnabled, fileMarkers = [
       const markerExtra = fileLabel ? MIN_ROW_HEIGHT : 0;
       return Math.max(MIN_ROW_HEIGHT, numWrappedLines * LINE_HEIGHT + 4 + markerExtra);
     },
-    [wrapMode, processedLines, fileStartLines]
+    [processedLines, fileStartLines]
   );
 
-  // Row renderer for scroll mode (fixed height)
-  const ScrollRow = useCallback(
-    ({ index, style }) => {
-      const line = processedLines[index];
-      if (!line) return null;
-
-      const levelClass = line.level ? `log-level-${line.level.toLowerCase()}` : "";
-      const parts = highlightMatches(line.text, searchRegex);
-      const fileLabel = fileStartLines.get(line.index);
-
-      return (
-        <div className={`log-line ${levelClass}`} style={style}>
-          {fileLabel && (
-            <span className="file-marker" title={fileLabel}>
-              ▸ {fileLabel}
-            </span>
-          )}
-          <span className="line-number">{line.index + 1}</span>
-          {line.level && (
-            <span className={`level-badge ${levelClass}`}>{line.level}</span>
-          )}
-          <span className="line-text">{parts}</span>
-        </div>
-      );
-    },
-    [processedLines, searchRegex, fileStartLines]
-  );
-
-  // Row renderer for wrap mode (variable height)
+  // Row renderer (wrap mode)
   const WrapRow = useCallback(
     ({ index, style }) => {
       const line = processedLines[index];
@@ -330,28 +300,20 @@ export default function LogViewer({ lines, filters, tailEnabled, fileMarkers = [
   }
 
   return (
-    <div className={`log-viewer ${wrapMode ? "wrap-mode" : "scroll-mode"}`}>
+    <div className="log-viewer wrap-mode">
       <div className="log-viewer-info">
         <span>
           Showing {processedLines.length} of {lines.length} lines
           {tailEnabled && <span className="tail-indicator"> — ● Tailing</span>}
         </span>
-        <button
-          className={`wrap-toggle-btn ${wrapMode ? "active" : ""}`}
-          onClick={() => setWrapMode((v) => !v)}
-          title={wrapMode ? "Switch to horizontal scroll" : "Switch to word wrap"}
-        >
-          {wrapMode ? "↔ Scroll" : "↩ Wrap"}
-        </button>
       </div>
       <div className="log-viewer-container">
         <AutoSizedList
           listRef={listRef}
           outerRef={outerRef}
           itemCount={processedLines.length}
-          itemSize={wrapMode ? getItemSize : 24}
-          Row={wrapMode ? WrapRow : ScrollRow}
-          variableSize={wrapMode}
+          itemSize={getItemSize}
+          Row={WrapRow}
           onWidthChange={(w) => { containerWidthRef.current = w; }}
         />
       </div>
@@ -363,7 +325,7 @@ export default function LogViewer({ lines, filters, tailEnabled, fileMarkers = [
  * Uses a ResizeObserver to automatically size the virtual list
  * to fill its container.
  */
-function AutoSizedList({ listRef, outerRef, itemCount, itemSize, Row, variableSize, onWidthChange }) {
+function AutoSizedList({ listRef, outerRef, itemCount, itemSize, Row, onWidthChange }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = React.useState({ width: 800, height: 400 });
 
@@ -378,7 +340,7 @@ function AutoSizedList({ listRef, outerRef, itemCount, itemSize, Row, variableSi
         setDimensions({ width: w, height: h });
         if (onWidthChange) onWidthChange(w);
         // Reset variable list cache when width changes
-        if (variableSize && listRef.current && listRef.current.resetAfterIndex) {
+        if (listRef.current && listRef.current.resetAfterIndex) {
           listRef.current.resetAfterIndex(0, true);
         }
       }
@@ -386,26 +348,21 @@ function AutoSizedList({ listRef, outerRef, itemCount, itemSize, Row, variableSi
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [variableSize, listRef, onWidthChange]);
-
-  const ListComponent = variableSize ? VariableSizeList : FixedSizeList;
-  const sizeProps = variableSize
-    ? { itemSize }
-    : { itemSize };
+  }, [listRef, onWidthChange]);
 
   return (
     <div ref={containerRef} className="auto-sized-list">
-      <ListComponent
+      <VariableSizeList
         ref={listRef}
         outerRef={outerRef}
         height={dimensions.height}
         width={dimensions.width}
         itemCount={itemCount}
-        {...sizeProps}
+        itemSize={itemSize}
         overscanCount={20}
       >
         {Row}
-      </ListComponent>
+      </VariableSizeList>
     </div>
   );
 }
