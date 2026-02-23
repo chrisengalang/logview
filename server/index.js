@@ -288,11 +288,9 @@ wss.on("connection", (ws) => {
 
         currentWatcher = chokidar.watch(currentFile, {
           persistent: true,
-          usePolling: false,
-          awaitWriteFinish: {
-            stabilityThreshold: 100,
-            pollInterval: 50,
-          },
+          usePolling: true,
+          interval: 1000,
+          binaryInterval: 1000,
         });
 
         currentWatcher.on("change", () => {
