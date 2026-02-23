@@ -5,8 +5,11 @@ import { VariableSizeList } from "react-window";
 const CHAR_WIDTH = 7.7;
 // Fixed space taken by line-number (50) + level badge (56) + padding (32)
 const LINE_OVERHEAD = 138;
-const MIN_ROW_HEIGHT = 24;
-const LINE_HEIGHT = 20;
+const MIN_ROW_HEIGHT = 28;
+// Must match CSS .log-line { line-height: 24px }
+const LINE_HEIGHT = 24;
+// Vertical overhead per row:  padding-top(2) + padding-bottom(2) + border-bottom(1)
+const ROW_PADDING = 5;
 
 // Common log timestamp patterns
 const TIMESTAMP_PATTERNS = [
@@ -245,14 +248,16 @@ export default function LogViewer({ lines, filters, tailEnabled, fileMarkers = [
     (index) => {
       const line = processedLines[index];
       if (!line) return MIN_ROW_HEIGHT;
-      const availableWidth = containerWidthRef.current - LINE_OVERHEAD;
+      // Lines without a level badge have ~56px more horizontal space
+      const overhead = line.level ? LINE_OVERHEAD : LINE_OVERHEAD - 56;
+      const availableWidth = containerWidthRef.current - overhead;
       if (availableWidth <= 0) return MIN_ROW_HEIGHT;
       const charsPerRow = Math.floor(availableWidth / CHAR_WIDTH);
       if (charsPerRow <= 0) return MIN_ROW_HEIGHT;
       const numWrappedLines = Math.ceil(line.text.length / charsPerRow) || 1;
       const fileLabel = fileStartLines.get(line.index);
       const markerExtra = fileLabel ? MIN_ROW_HEIGHT : 0;
-      return Math.max(MIN_ROW_HEIGHT, numWrappedLines * LINE_HEIGHT + 4 + markerExtra);
+      return Math.max(MIN_ROW_HEIGHT, numWrappedLines * LINE_HEIGHT + ROW_PADDING + markerExtra);
     },
     [processedLines, fileStartLines]
   );

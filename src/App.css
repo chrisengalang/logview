@@ -748,9 +748,8 @@
 }
 
 .line-text {
-  white-space: pre;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: pre-wrap;
+  word-break: break-all;
   min-width: 0;
 }
 
